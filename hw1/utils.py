@@ -35,9 +35,16 @@ def trunc_vocab(corpus, counts):
 
         Hint: Sort the keys of counts by their values
     """
+    print('Truncating vocab')
     frequent = [w[0] for w in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10000]]
-    new_corpus = [[w for w in s if w in frequent] for s in corpus]
+    new_corpus = []
+    for i, s in enumerate(corpus):
+        if i % 100 == 0:
+            print('{0} of {1}'.format(i, len(corpus)), end='\r')
+        new_s = [w for w in s if w in frequent]
+        new_corpus.append(new_s)
     new_counts = {k: v for k, v in counts.items() if k in frequent}
+    print('Finished truncating vocab')
     return (new_corpus, new_counts)
 
 def load_corpus(path):

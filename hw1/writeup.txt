@@ -1,4 +1,25 @@
 Part 1
-1. I chose to show the closest words to 'journeyed'.
-These are, in descending order: 'journeyed', 'moved', 'travelled', 'the', 'went', 'back', 'John', 'to', 'hallway', '.', 'Mary', 'bathroom', 'Daniel', 'bedroom', 'Sandra', 'kitchen', 'garden', 'office'
-This is what I would expect.
+1. I chose to show the closest words to 'Texas', since I'm from there
+These are:
+Texas
+Louisiana
+California
+Arizona
+Georgia
+Veracruz
+Ontario
+2010
+2009
+2006
+2013
+Maryland
+2005
+1964
+2011
+2012
+2001
+Denmark
+2008
+2007
+The other states make sense, and I find it interesting that many are relatively similar states.
+The years were more surprising, but make sense in retrospect - one can say something happened "in Texas" or "in 2010" fairly interchangeably.
