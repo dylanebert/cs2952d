@@ -1,0 +1,12 @@
+cycler
+kiwisolver
+matplotlib
+numpy
+pyparsing
+python-dateutil
+pytz
+scipy
+six
+torch==0.4.0
+tqdm
+scikit-learn
