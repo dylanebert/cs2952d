@@ -29,31 +29,20 @@ import hyperparams as hp
 class SkipGramNetwork(nn.Module):
 
     def __init__(self, vocab_size, embedding_size):
-        """ TODO
-            Initialise the layers of your network here. You should have two layers:
-                - an embedding lookup layer
-                - a linear (fully-connected) layer
-        """
         super(SkipGramNetwork, self).__init__()
-        raise NotImplementedError("SkipGramNetwork.__init__")
+        self.h1 = nn.Linear(vocab_size, embedding_size)
+        self.h2 = nn.Linear(embedding_size, vocab_size)
+        self.onehot_lookup = torch.eye(vocab_size, vocab_size)
 
     def forward(self, inputs):
-        """ TODO
-            Implement the forward pass for your network.
-             inputs: batch_size x 1 tensor, each batch element will be a word id
-             outputs: batch_size x vocab_size tensor
-
-            You shouldn't need to use any non-linearities.
-            If using NLLLoss don't forget to apply a log softmax to your output.
-        """
-        raise NotImplementedError("SkipGramNetwork.forward")
+        w = self.onehot_lookup[w]
+        h = F.relu(self.h1(w))
+        logits = self.h2(h)
+        return F.log_softmax(logits, dim=1)
 
 def skip_grams(corpus, vocab):
-    """ TODO
-        Input: A corpus (list of list of string) and a vocab (word-to-id mapping)
-        Output: A list of skipgrams (each skipgram should be a list of length 2)
-    """
-    raise NotImplementedError("skip_grams")
+    data = [(vocab[w1], vocab[w2]) for w1, w2 in corpus]
+    return data
 
 def train(model, dataloader):
     """ Complete this function. Return a history of loss function evaluations """

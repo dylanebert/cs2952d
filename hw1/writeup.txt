@@ -1,0 +1,4 @@
+Part 1
+1. I chose to show the closest words to 'journeyed'.
+These are, in descending order: 'journeyed', 'moved', 'travelled', 'the', 'went', 'back', 'John', 'to', 'hallway', '.', 'Mary', 'bathroom', 'Daniel', 'bedroom', 'Sandra', 'kitchen', 'garden', 'office'
+This is what I would expect.

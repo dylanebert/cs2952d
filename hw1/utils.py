@@ -13,7 +13,17 @@ def construct_vocab(corpus):
                 vocab: A dict mapping str -> int. This will be your vocabulary.
                 inverse_vocab: Inverse mapping int -> str
     """
-    raise NotImplementedError("construct_vocab")
+    words = []
+    vocab = {}
+    inverse_vocab = {}
+    i = 0
+    for s in corpus:
+        for w in s:
+            if w not in words:
+                vocab[w] = i
+                inverse_vocab[i] = w
+                i += 1
+    return (vocab, inverse_vocab)
 
 def trunc_vocab(corpus, counts):
     """ Limit the vocabulary to the 10k most-frequent words. Remove rare words from
@@ -25,13 +35,16 @@ def trunc_vocab(corpus, counts):
 
         Hint: Sort the keys of counts by their values
     """
-    raise NotImplementedError("trunc_vocab")
+    frequent = [w[0] for w in sorted(counts.items(), key=lambda x: x[1], reverse=True)[:10000]]
+    new_corpus = [[w for w in s if w in frequent] for s in corpus]
+    new_counts = {k: v for k, v in counts.items() if k in frequent}
+    return (new_corpus, new_counts)
 
 def load_corpus(path):
     """ Reads the data from disk.
         Returns a list of sentences, where each sentence is split into a list of word tokens
     """
-    with open(path, "r") as f:
+    with open(path, 'r', encoding='utf-8') as f:
         c = [line.split() for line in f]
     return c
 
@@ -69,4 +82,3 @@ def load_data(restore_path):
 def save_data(save_path, vocab, inverse_vocab):
     with open(os.path.join(save_path, "data.pkl"), "wb") as f:
         pickle.dump((vocab, inverse_vocab), f)
-
