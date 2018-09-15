@@ -24,5 +24,13 @@ Denmark
 The other states make sense, and I find it interesting that many are relatively similar states.
 The years were more surprising, but make sense in retrospect - one can say something happened "in Texas" or "in 2010" fairly interchangeably.
 
-2. For the most similar pairs, I got "Pozzobonelli" and "Stoppani", which are hilarious. They likely only appear once, and have the same word after them.
-For least similar pairs, I got "rest" and some form of white space.
+2. Similarity means how similar the words that tend to appear a given word are. I used cosine similarity as a distance metric.
+This is important because removes magnitude bias - with similarities like euclidian distance, two words may tend to show up in the same context,
+but one is much more common than the other, which would make them dissimilar. This isn't what we want - a word's frequency shouldn't matter,
+only its context. Since cosine similarity instead uses angle, it isn't sensitive to this.
+
+3. For the most similar pairs, I got "Pozzobonelli" and "Stoppani", which are hilarious. They likely only appear once, and have the same word after them.
+For least similar pairs, I got "rest" and some form of white space.*****FIX******
+
+Part 2
+1.

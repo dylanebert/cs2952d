@@ -18,13 +18,17 @@ def construct_vocab(corpus):
     vocab = {}
     inverse_vocab = {}
     i = 0
-    for s in corpus:
+    print('Constructing vocab')
+    for j, s in enumerate(corpus):
+        if j % 1000 == 0:
+            print('{0} of {1}'.format(j, len(corpus)), end='\r')
         for w in s:
             if w not in words:
                 words.append(w)
                 vocab[w] = i
                 inverse_vocab[i] = w
                 i += 1
+    print('Finished constructing vocab')
     return (vocab, inverse_vocab)
 
 def trunc_vocab(corpus, counts):
