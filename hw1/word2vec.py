@@ -19,6 +19,7 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 
 from sklearn.manifold import TSNE
+from scipy.spatial.distance import cosine
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
@@ -30,14 +31,14 @@ class SkipGramNetwork(nn.Module):
 
     def __init__(self, vocab_size, embedding_size):
         super(SkipGramNetwork, self).__init__()
-        self.h1 = nn.Linear(vocab_size, embedding_size)
-        self.h2 = nn.Linear(embedding_size, vocab_size)
+        self.embeddings = nn.Linear(vocab_size, embedding_size)
+        self.logits = nn.Linear(embedding_size, vocab_size)
         self.onehot_lookup = torch.eye(vocab_size, vocab_size)
 
     def forward(self, input):
-        w = self.onehot_lookup[input]
-        h = F.relu(self.h1(w))
-        logits = self.h2(h)
+        input = self.onehot_lookup[input].to(device)
+        h = F.relu(self.embeddings(input))
+        logits = self.logits(h)
         return F.log_softmax(logits, dim=1)
 
 def skip_grams(corpus, vocab):
@@ -66,12 +67,6 @@ def train(model, dataloader):
             context = torch.LongTensor(context).to(device)
 
             model.zero_grad() # clear gradients (torch will accumulate them)
-            """ TODO:
-                1. perform the forward pass
-                2. evaluate the loss given output from forward pass and known context word
-                3. backward pass
-                4. parameter update
-            """
             probs = model(target)
             loss = loss_function(probs, context)
             loss.backward()
@@ -93,7 +88,7 @@ def most_similar(lookup_table, wordvec):
         similar word ids to the given word vector. You may limit this to the first
         NUM_CLOSEST results.
     """
-    closest = [w[0] for w in sorted(lookup_table.items(), key=lambda x: cosine(wordvec, x[1]))[:NUM_CLOSEST]]
+    closest = [w[0] for w in sorted(enumerate(np.transpose(lookup_table)), key=lambda x: cosine(wordvec, x[1]))[:hp.NUM_CLOSEST]]
     return closest
 
 def main():
@@ -117,23 +112,28 @@ def main():
         sentences = utils.load_corpus(args.corpus)
         word_freqs = utils.word_counts(sentences)
         sentences, word_freqs = utils.trunc_vocab(sentences, word_freqs)
-        #sentences = utils.subsample(sentences, word_freqs)
+        sentences = utils.subsample(sentences, word_freqs)
 
         vocab, inverse_vocab = utils.construct_vocab(sentences)
         skipgrams = skip_grams(sentences, vocab)
         utils.save_data(args.save, vocab, inverse_vocab)
 
         loader = DataLoader(skipgrams, batch_size=hp.BATCH_SIZE, shuffle=True)
-        loss_hist = train(net, loader) # TODO returns loss function evaluations as python list
+        loss_hist = train(net, loader)
+        print(loss_hist)
 
-        """ You can plot loss_hist for your writeup:
-            plt.plot(loss_hist)
-            plt.show()
-        """
+        plt.plot(loss_hist)
+        plt.show()
 
     # the weights of the embedding matrix are the lookup table
     lookup_table = net.embeddings.weight.data.cpu().numpy()
-
+    fav_word = 'to'
+    one_hot = np.zeros((hp.VOCAB_SIZE))
+    one_hot[vocab[fav_word]] = 1
+    wordvec = np.dot(lookup_table, one_hot)
+    nearest = most_similar(lookup_table, wordvec)
+    nearest_words = [inverse_vocab[w] for w in nearest]
+    print(nearest_words)
     """ TODO: Implement what you need in order to answer the writeup questions. """
 
 

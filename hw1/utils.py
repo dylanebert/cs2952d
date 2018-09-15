@@ -21,6 +21,7 @@ def construct_vocab(corpus):
     for s in corpus:
         for w in s:
             if w not in words:
+                words.append(w)
                 vocab[w] = i
                 inverse_vocab[i] = w
                 i += 1
