@@ -127,12 +127,12 @@ def main():
 
     # the weights of the embedding matrix are the lookup table
     lookup_table = net.embeddings.weight.data.cpu().numpy()
-    fav_word = 'to'
+    fav_word = 'journeyed'
     one_hot = np.zeros((hp.VOCAB_SIZE))
     one_hot[vocab[fav_word]] = 1
     wordvec = np.dot(lookup_table, one_hot)
     nearest = most_similar(lookup_table, wordvec)
-    nearest_words = [inverse_vocab[w] for w in nearest]
+    nearest_words = [inverse_vocab[w] for w in nearest if w in inverse_vocab]
     print(nearest_words)
     """ TODO: Implement what you need in order to answer the writeup questions. """
 
