@@ -23,3 +23,6 @@ Denmark
 2007
 The other states make sense, and I find it interesting that many are relatively similar states.
 The years were more surprising, but make sense in retrospect - one can say something happened "in Texas" or "in 2010" fairly interchangeably.
+
+2. For the most similar pairs, I got "Pozzobonelli" and "Stoppani", which are hilarious. They likely only appear once, and have the same word after them.
+For least similar pairs, I got "rest" and some form of white space.

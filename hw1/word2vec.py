@@ -34,14 +34,21 @@ class SkipGramNetwork(nn.Module):
         self.h2 = nn.Linear(embedding_size, vocab_size)
         self.onehot_lookup = torch.eye(vocab_size, vocab_size)
 
-    def forward(self, inputs):
-        w = self.onehot_lookup[w]
+    def forward(self, input):
+        w = self.onehot_lookup[input]
         h = F.relu(self.h1(w))
         logits = self.h2(h)
         return F.log_softmax(logits, dim=1)
 
 def skip_grams(corpus, vocab):
-    data = [(vocab[w1], vocab[w2]) for w1, w2 in corpus]
+    data = []
+    for s in corpus:
+        for i in range(len(s)):
+            for j in range(1, hp.WINDOW_SIZE):
+                if i - j >= 0:
+                    data.append((vocab[s[i]], vocab[s[i-j]]))
+                if i + j < len(s):
+                    data.append((vocab[s[i]], vocab[s[i+j]]))
     return data
 
 def train(model, dataloader):
@@ -65,7 +72,11 @@ def train(model, dataloader):
                 3. backward pass
                 4. parameter update
             """
-            raise NotImplementedError("training loop")
+            probs = model(target)
+            loss = loss_function(probs, context)
+            loss.backward()
+            optimizer.step()
+            loss_history.append(loss.item())
 
             if (batch_idx % 500) == 0:
                 print("\t Batch {}".format(batch_idx))
@@ -82,7 +93,8 @@ def most_similar(lookup_table, wordvec):
         similar word ids to the given word vector. You may limit this to the first
         NUM_CLOSEST results.
     """
-    raise NotImplementedError("most_similar")
+    closest = [w[0] for w in sorted(lookup_table.items(), key=lambda x: cosine(wordvec, x[1]))[:NUM_CLOSEST]]
+    return closest
 
 def main():
     """ Task: Train a neural network to predict skip-grams.
@@ -104,11 +116,11 @@ def main():
     else:
         sentences = utils.load_corpus(args.corpus)
         word_freqs = utils.word_counts(sentences)
-        sentences, word_freqs = utils.trunc_vocab(sentences, word_freqs) # TODO
-        sentences = utils.subsample(sentences, word_freqs)
+        sentences, word_freqs = utils.trunc_vocab(sentences, word_freqs)
+        #sentences = utils.subsample(sentences, word_freqs)
 
-        vocab, inverse_vocab = utils.construct_vocab(sentences) # TODO
-        skipgrams = skip_grams(sentences, vocab) # TODO
+        vocab, inverse_vocab = utils.construct_vocab(sentences)
+        skipgrams = skip_grams(sentences, vocab)
         utils.save_data(args.save, vocab, inverse_vocab)
 
         loader = DataLoader(skipgrams, batch_size=hp.BATCH_SIZE, shuffle=True)

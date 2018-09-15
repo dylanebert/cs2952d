@@ -3,6 +3,7 @@ import os
 import collections
 from tqdm import tqdm
 import numpy as np
+import pickle
 
 import hyperparams as hp
 

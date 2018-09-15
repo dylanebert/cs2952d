@@ -62,8 +62,6 @@ def main():
     3. Use the vocabulary (as a word-to-id mapping) and corpus to construct the sparse word vectors.
     """
     sentences = utils.load_corpus(args.corpus)
-    counts = utils.word_counts(sentences)
-    sentences, counts = utils.trunc_vocab(sentences, counts)
     vocab, inverse_vocab = utils.construct_vocab(sentences)
     lookup_table = word_vectors(sentences, vocab)
 
@@ -91,7 +89,6 @@ def main():
     print('Finished computing most and least similar pairs')
     print('Most similar pair: {0}, {1}'.format(most_similar[0], most_similar[1]))
     print('Least similar pair: {0}, {1}'.format(least_similar[0], least_similar[1]))
-
 
 if __name__ == "__main__":
     # NOTE: feel free to add your own arguments here, but we will only ever run your script
