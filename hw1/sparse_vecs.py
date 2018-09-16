@@ -46,11 +46,6 @@ def word_vectors(corpus, vocab):
     return vectors
 
 def closest(lookup_table, wordvec):
-    """ Helper function (optional).
-
-        Given a lookup table and word vector, find the top most-similar word ids to the given
-        word vector. You can limit this to the first NUM_CLOSEST results.
-    """
     closest = [w[0] for w in sorted(lookup_table.items(), key=lambda x: cosine(wordvec, x[1]))[:NUM_CLOSEST]]
     return closest
 
@@ -62,6 +57,8 @@ def main():
     3. Use the vocabulary (as a word-to-id mapping) and corpus to construct the sparse word vectors.
     """
     sentences = utils.load_corpus(args.corpus)
+    word_freqs = utils.word_counts(sentences)
+    sentences, word_freqs = utils.trunc_vocab(sentences, word_freqs)
     vocab, inverse_vocab = utils.construct_vocab(sentences)
     lookup_table = word_vectors(sentences, vocab)
 

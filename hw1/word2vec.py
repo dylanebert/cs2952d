@@ -82,13 +82,8 @@ def train(model, dataloader):
 
     return loss_history
 
-def most_similar(lookup_table, wordvec):
-    """ TODO
-        Given a lookup table and word vector, find the top-most
-        similar word ids to the given word vector. You may limit this to the first
-        NUM_CLOSEST results.
-    """
-    closest = [w[0] for w in sorted(enumerate(np.transpose(lookup_table)), key=lambda x: cosine(wordvec, x[1]))[:hp.NUM_CLOSEST]]
+def closest(lookup_table, wordvec):
+    closest = [w[0] for w in sorted(enumerate(lookup_table), key=lambda x: cosine(wordvec, x[1]))[:hp.NUM_CLOSEST]]
     return closest
 
 def main():
@@ -127,14 +122,31 @@ def main():
 
     # the weights of the embedding matrix are the lookup table
     lookup_table = net.embeddings.weight.data.cpu().numpy()
-    fav_word = 'journeyed'
-    one_hot = np.zeros((hp.VOCAB_SIZE))
-    one_hot[vocab[fav_word]] = 1
-    wordvec = np.dot(lookup_table, one_hot)
-    nearest = most_similar(lookup_table, wordvec)
+    lookup_table = np.transpose(lookup_table) #transpose the table so we can index directly
+    fav_word = 'Texas'
+    wordvec = lookup_table[vocab[fav_word]]
+    nearest = closest(lookup_table, wordvec)
     nearest_words = [inverse_vocab[w] for w in nearest if w in inverse_vocab]
-    print(nearest_words)
-    """ TODO: Implement what you need in order to answer the writeup questions. """
+    print('Nearest to {0}: {1}'.format(fav_word, nearest_words))
+
+    #Computing most and least similar words
+    words = list(vocab.keys())
+    most_similar = (None, None, .5)
+    least_similar = (None, None, .5)
+    print('Computing most and least similar pairs')
+    for i in range(len(words) - 1):
+        print('{0} of {1}'.format(i, len(words)), end='\r')
+        for j in range(i+1, len(words)):
+            w1 = words[i]
+            w2 = words[j]
+            sim = 1 - cosine(lookup_table[vocab[w1]], lookup_table[vocab[w2]])
+            if sim > most_similar[2]:
+                most_similar = (w1, w2, sim)
+            if sim < least_similar[2]:
+                least_similar = (w1, w2, sim)
+    print('Finished computing most and least similar pairs')
+    print('Most similar pair: {0}, {1}'.format(most_similar[0], most_similar[1]))
+    print('Least similar pair: {0}, {1}'.format(least_similar[0], least_similar[1]))
 
 
 if __name__ == "__main__":

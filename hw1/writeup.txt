@@ -1,6 +1,5 @@
 Part 1
-1. I chose to show the closest words to 'Texas', since I'm from there
-These are:
+1. I chose to show the closest words to 'Texas', since I'm from there:
 Texas
 Louisiana
 California
@@ -33,4 +32,29 @@ only its context. Since cosine similarity instead uses angle, it isn't sensitive
 For least similar pairs, I got "rest" and some form of white space.*****FIX******
 
 Part 2
-1.
+1. The final training loss is X.
+2. The closest words to 'Texas' using word2vec are:
+Texas
+Mexico
+Arizona
+Maryland
+Mexican
+Florida
+Pleasure
+Democrat
+Campus
+Pittsburgh
+Philippines
+Mozambique
+Democratic
+Veracruz
+Idaho
+nearby
+Georgia
+Louisiana
+Boston
+Norfolk
+These are more like what I would have in my mental model - most of them are places. "Pleasure", "Campus", "nearby", and "Democratic", seem a bit out of place,
+but most of the others are proper noun locations. The two most similar (besides itself), Mexico and Arizona, especially make sense, considering their geographic
+and cultural proximity.
+3. The most similar pairs were "Stoppani" and "Pozzobonelli". These least similar pairs were "until" and "Hank".
