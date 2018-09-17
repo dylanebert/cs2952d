@@ -123,13 +123,15 @@ def main():
     # the weights of the embedding matrix are the lookup table
     lookup_table = net.embeddings.weight.data.cpu().numpy()
     lookup_table = np.transpose(lookup_table) #transpose the table so we can index directly
-    fav_word = 'Texas'
+
+    #2 - nearest to favorite
+    '''fav_word = 'Texas'
     wordvec = lookup_table[vocab[fav_word]]
     nearest = closest(lookup_table, wordvec)
     nearest_words = [inverse_vocab[w] for w in nearest if w in inverse_vocab]
     print('Nearest to {0}: {1}'.format(fav_word, nearest_words))
 
-    #Computing most and least similar words
+    #3 - most and least similar
     words = list(vocab.keys())
     most_similar = (None, None, .5)
     least_similar = (None, None, .5)
@@ -146,8 +148,13 @@ def main():
                 least_similar = (w1, w2, sim)
     print('Finished computing most and least similar pairs')
     print('Most similar pair: {0}, {1}'.format(most_similar[0], most_similar[1]))
-    print('Least similar pair: {0}, {1}'.format(least_similar[0], least_similar[1]))
+    print('Least similar pair: {0}, {1}'.format(least_similar[0], least_similar[1]))'''
 
+    #4 - manifold
+    print('Fitting to manifold')
+    manifold = TSNE().fit_transform(lookup_table)
+    plt.scatter(manifold[:,0], manifold[:,1])
+    plt.show()
 
 if __name__ == "__main__":
     # NOTE: feel free to add your own arguments here, but we will only ever run your script

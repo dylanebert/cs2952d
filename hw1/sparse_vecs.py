@@ -62,13 +62,13 @@ def main():
     vocab, inverse_vocab = utils.construct_vocab(sentences)
     lookup_table = word_vectors(sentences, vocab)
 
-    #Report nearest to my favorite word
+    #1 - nearest to my favorite word
     fav_word = 'Texas'
     nearest_ids = closest(lookup_table, lookup_table[vocab[fav_word]])
     nearest_words = [inverse_vocab[i] for i in nearest_ids]
     print('Nearest to {0}: {1}'.format(fav_word, nearest_words))
 
-    #Computing most and least similar words
+    #2/3 - most and least similar
     words = list(vocab.keys())
     most_similar = (None, None, .5)
     least_similar = (None, None, .5)
