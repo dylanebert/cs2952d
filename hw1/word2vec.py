@@ -125,7 +125,7 @@ def main():
     lookup_table = np.transpose(lookup_table) #transpose the table so we can index directly
 
     #2 - nearest to favorite
-    '''fav_word = 'Texas'
+    fav_word = 'Texas'
     wordvec = lookup_table[vocab[fav_word]]
     nearest = closest(lookup_table, wordvec)
     nearest_words = [inverse_vocab[w] for w in nearest if w in inverse_vocab]
@@ -148,7 +148,7 @@ def main():
                 least_similar = (w1, w2, sim)
     print('Finished computing most and least similar pairs')
     print('Most similar pair: {0}, {1}'.format(most_similar[0], most_similar[1]))
-    print('Least similar pair: {0}, {1}'.format(least_similar[0], least_similar[1]))'''
+    print('Least similar pair: {0}, {1}'.format(least_similar[0], least_similar[1]))
 
     #4 - manifold
     print('Fitting to manifold')

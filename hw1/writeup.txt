@@ -32,7 +32,8 @@ only its context. Since cosine similarity instead uses angle, it isn't sensitive
 For least similar pairs, I got "no" and "shortly".
 
 Part 2
-1. The final training loss is near 6. See loss.png
+1. The final training loss was 6.5156331062316895. See loss.png for the graph.
+
 2. The closest words to 'Texas' using word2vec are:
 Texas
 Mexico
@@ -57,5 +58,7 @@ Norfolk
 These are more like what I would have in my mental model - most of them are places. "Pleasure", "Campus", "nearby", and "Democratic", seem a bit out of place,
 but most of the others are proper noun locations. The two most similar (besides itself), Mexico and Arizona, especially make sense, considering their geographic
 and cultural proximity.
+
 3. The most similar pairs were "Stoppani" and "Pozzobonelli". These least similar pairs were "until" and "Hank".
+
 4. See manifold.png
