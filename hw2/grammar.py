@@ -19,7 +19,7 @@ class Rule:
     def __init__(self, lhs, rhs, sem=None):
         """
         :param lhs: The rule type (i.e. $E, $UnOp, $BinOp, $EBO)
-        :param rhs: The rule .... 
+        :param rhs: The rule ....
         :param sem: The semantic representation (i.e. "+", Expression)
         """
         self.lhs = lhs
@@ -31,23 +31,19 @@ class Rule:
         Return true if the label represents a category.
         :param label: string like $E
         """
-        #TODO
-        raise(NotImplementedError("Rule.is_cat"))
+        return label[0] == '$'
 
     def is_lexical(self):
         """
         Returns true if this is a lexical rule. Hint: use is_cat
         """
-        #TODO
-        raise(NotImplementedError("Rule.is_lexical"))
-
+        return len(self.rhs) == 1 and not self.is_cat(self.rhs[0])
 
     def is_binary(self):
         """
         Returns true if the rule is binary
         """
-        #TODO
-        raise(NotImplementedError("Rule.is_binary"))
+        return len(self.rhs) == 2
 
     def apply_semantics(self, sems):
         # Note that this function would not be needed if we required that semantics
@@ -65,8 +61,7 @@ class Rule:
         """
         Returns true if the rule is unary
         """
-        #TODO
-        raise(NotImplementedError("Rule.is_unary"))
+        return len(self.rhs) == 1 and self.is_cat(self.rhs[0])
 
     def is_optional(self, label):
         """
@@ -74,15 +69,16 @@ class Rule:
         initial '?'.
         :param label: string like ?$Optionals
         """
-        #TODO
-        raise(NotImplementedError("Rule.is_optional"))
+        return label[0] == '?'
 
     def contains_optionals(self):
         """
         Returns true iff the given Rule contains any optional items on the RHS.
         """
-        #TODO
-        raise(NotImplementedError("Rule.contains_optionals"))
+        for item in self.rhs:
+            if self.is_optional(item):
+                return True
+        return False
 
     def __str__(self):
         """
@@ -128,12 +124,9 @@ class Parse:
         Hint: Remember when you defined the rules, there was a "sem" attribute.
         """
         if self.rule.is_lexical():
-            #TODO
-            pass
+            return self.rule.apply_semantics(self.rule.sem)
         else:
-            #TODO
-            pass
-        raise(NotImplementedError("Rule.compute_semantics"))
+            return self.rule.apply_semantics([child.compute_semantics() for child in self.children])
 
 #========================================= Grammar ==================================================
 
@@ -191,15 +184,15 @@ class Grammar:
         Returns a list of parses for the given input. Note that we will do this with a variant
         CYK algorithm, a chart parsing algorithm. This algorithm relies on a chart with a cell
         for every possible span of the input. A span is defined by the starting and ending indices
-        where each index defines a token of the input. Like list indexing, we include the starting 
+        where each index defines a token of the input. Like list indexing, we include the starting
         index while excluding the ending index token. For example,
-        
-        "one plus one" -> ["one", "plus", "one"] 
+
+        "one plus one" -> ["one", "plus", "one"]
         span(0,2) -> "one plus"
         span(1,3) -> "plus two"
         span(1,2) -> "plus"
 
-        For a detailed explanation of the pseudocode, visit the Wikipedia page for this algorithm. 
+        For a detailed explanation of the pseudocode, visit the Wikipedia page for this algorithm.
         Generally, the algorithm is the following:
 
         1. Split the input into tokens
@@ -212,13 +205,10 @@ class Grammar:
         :param input_sent: This is the input sentence
         :return: A chart with parses of all spans. Note that the parses are represented by the Parse class.
         """
-        raise(NotImplementedError("Grammar.parse_input"))
-        # TODO: create tokens
-        tokens = None
+        tokens = input_sent.split()
         chart = defaultdict(list)
-        # TODO: populate chart
-
-
+        chart = self.apply_lexical_rules(chart, tokens, 0, len(tokens))
+        chart = self.apply_binary_rules(chart, 0, len(tokens))
         parses = chart[(0, len(tokens))]
         if self.start_symbol:
             parses = [parse for parse in parses if parse.rule.lhs == self.start_symbol]
@@ -232,7 +222,10 @@ class Grammar:
         :param i: start of span
         :param j: end of span
         """
-        raise(NotImplementedError("Grammar.apply_lexical_rules"))
+        for s in range(i, j):
+            for rule in self.lexical_rules[(tokens[s],)]:
+                chart[(s,s+1)].append(Parse(rule, [tokens[s]]))
+        return chart
 
     def apply_binary_rules(self, chart, i, j):
         """
@@ -241,7 +234,17 @@ class Grammar:
         :param i: start of span
         :param j: end of span
         """
-        raise(NotImplementedError("Grammar.apply_binary_rules"))
+        n = j - i + 1
+        for span_length in range(2, n):
+            for span_start in range(i, n - span_length + i):
+                for span_partition in range(1, span_length):
+                    a = (span_start, span_start + span_partition)
+                    b = (span_start + span_partition, span_start + span_length)
+                    for r in chart[a]:
+                        for s in chart[b]:
+                                for rule in self.binary_rules[(r.rule.lhs, s.rule.lhs)]:
+                                    chart[(span_start, span_start + span_length)].append(Parse(rule, [r, s]))
+        return chart
 
     ############## Part 2 ##############
 
@@ -432,7 +435,7 @@ def define_arithmetic_rules():
     """ TODO
     This is where you can define all of the rules for our arithmetic lexicon. Note that our examples range
     from 1 to 4 while all of the operations are +, -, *, and ~ (negation). Note that negation and subtraction
-    are both represented as "minus". 
+    are both represented as "minus".
     """
     raise(NotImplementedError("define_arithmetic_rules"))
     numeral_rules = [
@@ -453,7 +456,7 @@ def define_arithmetic_rules():
 def get_parses(examples, grammar):
     """
     This function will compute the parses defined by the chart constructed through the CYK algorithm
-    and print all potential parses. 
+    and print all potential parses.
 
     :param examples: List of input sentences to parse
     :param grammar: The grammar rules to evaluate our inputs
@@ -500,7 +503,7 @@ if __name__ == '__main__':
         "minus four"
     ]
 
-    # Step 1: Define all of the rules 
+    # Step 1: Define all of the rules
     arithmetic_rules = define_arithmetic_rules()
 
     # Step 2: Construct the Grammar! Hint: In our solution, we have 11 rules

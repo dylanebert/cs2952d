@@ -69,9 +69,7 @@ def parse_tests():
         # Non Lexical Semantics
         assert(compositional_parse.compute_semantics() == 5)
 
-
     test_compute_semantics()
-
 
 def simple_grammar_tests():
     """
@@ -86,20 +84,20 @@ def simple_grammar_tests():
         input_sent = "one one"
         tokens = input_sent.split()
         chart = defaultdict(list)
-        grammar.apply_lexical_rules(chart, tokens, 0, 1)
-        grammar.apply_lexical_rules(chart, tokens, 1, 2)
+        chart = grammar.apply_lexical_rules(chart, tokens, 0, 1)
+        chart = grammar.apply_lexical_rules(chart, tokens, 1, 2)
         chart_entry_0_1 = "($Number, one)"
         chart_entry_1_2 = "($Number, one)"
         assert(str(chart[(0,1)][0]) == chart_entry_0_1)
-        assert(str(chart[(0,1)][0]) == chart_entry_1_2)
+        assert(str(chart[(1,2)][0]) == chart_entry_1_2)
 
     def test_apply_binary_rules():
         input_sent = "one one"
         tokens = input_sent.split()
         chart = defaultdict(list)
-        grammar.apply_lexical_rules(chart, tokens, 0, 1)
-        grammar.apply_lexical_rules(chart, tokens, 1, 2)
-        grammar.apply_binary_rules(chart, 0, 2)
+        chart = grammar.apply_lexical_rules(chart, tokens, 0, 1)
+        chart = grammar.apply_lexical_rules(chart, tokens, 1, 2)
+        chart = grammar.apply_binary_rules(chart, 0, 2)
         chart_entry_0_2 = "($Double, ($Number, one) ($Number, one))"
         assert(str(chart[(0,2)][0]) == chart_entry_0_2)
 
@@ -119,8 +117,6 @@ def annotator_tests():
     """
     annotator = GeobaseAnnotator(GraphKB(GeobaseReader().tuples))
     assert(annotator.annotate(["montana"])[0] == ('$Entity', '/state/montana'))
-
-
 
 if __name__ == '__main__':
     rule_tests()
