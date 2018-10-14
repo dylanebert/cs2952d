@@ -2,7 +2,7 @@
 
 class Expression:
     """
-    This is the general structure of an expression for our arithmetic grammar. 
+    This is the general structure of an expression for our arithmetic grammar.
     """
     def __init__(self, val):
         """
@@ -45,11 +45,9 @@ class Op1(Expression):
         self.rhs = rhs
 
     def eval(self):
-        #TODO: define lambda expressions for operators
-        # ops = {"-": ...}
-
-        #TODO: apply the operators
-        raise(NotImplementedError("Op1.eval"))
+        return {
+            '~': -self.rhs.eval()
+        }[self.val]
 
     def __str__(self):
         """
@@ -59,7 +57,7 @@ class Op1(Expression):
 
 class Op2(Expression):
     """
-    The binary operation. These would involve +,-,* 
+    The binary operation. These would involve +,-,*
     """
     def __init__(self, op, lhs, rhs):
         """
@@ -72,17 +70,14 @@ class Op2(Expression):
         self.rhs = rhs
 
     def eval(self):
-        #TODO: define lambda expressions for operators:
-        #ops = {"+": ...
-        #       "-": ...
-        #       "*": ...}
-        #TODO: apply the operators
-        raise(NotImplementedError("Op2.eval"))
-
+        return {
+            '+': self.lhs.eval() + self.rhs.eval(),
+            '-': self.lhs.eval() - self.rhs.eval(),
+            '*': self.lhs.eval() * self.rhs.eval()
+        }[self.val]
 
     def __str__(self):
         """
         String representation
         """
         return "({}, {}, {})".format(self.val, str(self.lhs), str(self.rhs))
-

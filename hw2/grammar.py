@@ -37,7 +37,7 @@ class Rule:
         """
         Returns true if this is a lexical rule. Hint: use is_cat
         """
-        return len(self.rhs) == 1 and not self.is_cat(self.rhs[0])
+        return not self.is_cat(self.rhs[0])
 
     def is_binary(self):
         """
@@ -242,8 +242,8 @@ class Grammar:
                     b = (span_start + span_partition, span_start + span_length)
                     for r in chart[a]:
                         for s in chart[b]:
-                                for rule in self.binary_rules[(r.rule.lhs, s.rule.lhs)]:
-                                    chart[(span_start, span_start + span_length)].append(Parse(rule, [r, s]))
+                            for rule in self.binary_rules[(r.rule.lhs, s.rule.lhs)]:
+                                chart[(span_start, span_start + span_length)].append(Parse(rule, [r, s]))
         return chart
 
     ############## Part 2 ##############
@@ -437,18 +437,30 @@ def define_arithmetic_rules():
     from 1 to 4 while all of the operations are +, -, *, and ~ (negation). Note that negation and subtraction
     are both represented as "minus".
     """
-    raise(NotImplementedError("define_arithmetic_rules"))
     numeral_rules = [
-        #TODO:
+        Rule('$Expr', 'one', Number(1)),
+        Rule('$Expr', 'two', Number(2)),
+        Rule('$Expr', 'three', Number(3)),
+        Rule('$Expr', 'four', Number(4)),
+        Rule('$Expr', 'five', Number(5)),
+        Rule('$Expr', 'six', Number(6)),
+        Rule('$Expr', 'seven', Number(7)),
+        Rule('$Expr', 'eight', Number(8)),
+        Rule('$Expr', 'nine', Number(9))
     ]
 
     operator_rules = [
-        #TODO:
+        Rule('$BinOp', 'plus', '+'),
+        Rule('$BinOp', 'minus', '-'),
+        Rule('$BinOp', 'times', '*'),
+        Rule('$UnOp', 'minus', '~')
     ]
 
     # Remember that we need these to be in chomsky normal form
     compositional_rules = [
-        #TODO:
+        Rule('$EBO', '$Expr $BinOp', lambda sem: tuple(sem)),
+        Rule('$Expr', '$EBO $Expr', lambda sem: Op2(sem[0][1], sem[0][0], sem[1])),
+        Rule('$Expr', '$UnOp $Expr', lambda sem: Op1(sem[0], sem[1]))
     ]
 
     return numeral_rules + operator_rules + compositional_rules
