@@ -7,6 +7,7 @@ from types import FunctionType
 from collections import defaultdict
 from itertools import product
 from expressions import *
+import nltk
 
 MAX_CELL_CAPACITY = 1000  # upper bound on number of parses in one chart cell
 
@@ -154,7 +155,7 @@ class Grammar:
         # Part 2: Inducing the rules of the grammar based on the lexicon
         if induced:
             # Make sure that the file path to the provided lexicon file
-            lexicon = self.create_lexicon("../../data/hw2_lexicon.txt")
+            lexicon = self.create_lexicon("hw2_lexicon.txt")
             self.induce_grammar_rules(lexicon)
 
         print('Created grammar with {} rules.'.format(len(rules)))
@@ -205,11 +206,17 @@ class Grammar:
         :param input_sent: This is the input sentence
         :return: A chart with parses of all spans. Note that the parses are represented by the Parse class.
         """
+        print(input_sent)
         tokens = input_sent.split()
         chart = defaultdict(list)
         chart = self.apply_lexical_rules(chart, tokens, 0, len(tokens))
         chart = self.apply_binary_rules(chart, 0, len(tokens))
+        for i, j in product(range(0, len(tokens)), repeat=2):
+            chart = self.apply_unary_rules(chart, i, j)
+        print()
+        self.print_chart(chart)
         parses = chart[(0, len(tokens))]
+        print(parses)
         if self.start_symbol:
             parses = [parse for parse in parses if parse.rule.lhs == self.start_symbol]
         return parses
@@ -225,6 +232,7 @@ class Grammar:
         for s in range(i, j):
             for rule in self.lexical_rules[(tokens[s],)]:
                 chart[(s,s+1)].append(Parse(rule, [tokens[s]]))
+                chart = self.apply_annotators(chart, tokens, s, s+1)
         return chart
 
     def apply_binary_rules(self, chart, i, j):
@@ -258,7 +266,10 @@ class Grammar:
         Hint: 1) iterate over all parses in a cell, (i,j)
               2) for each unary rule in each parse, check capacity and then append rule
         """
-        raise(NotImplementedError("Grammar.apply_unary_rules"))
+        for cell in chart[(i, j)]:
+            for rule in self.unary_rules[(cell.rule.lhs,)]:
+                chart[(i, j)].append(Parse(rule, [cell]))
+        return chart
 
     def apply_annotators(self, chart, tokens, i, j):
         """
@@ -272,7 +283,11 @@ class Grammar:
               2) for every annotator, for every token annotation
               3) check capacity and add Rule
         """
-        raise(NotImplementedError("Grammar.apply_annotators"))
+        '''for annotator in self.annotators:
+            for s in range(i, j):
+                for annotation in annotator.annotate([tokens[s]]):
+                    chart[(s,s+1)].append(annotation)'''
+        return chart
 
     def add_n_ary_rule(self, rule):
         """
@@ -383,7 +398,25 @@ class Grammar:
 
         """
         rules_set = {} # map lhs -> dictionary of rule -> count
-        raise(NotImplementedError("induce_grammar_rules"))
+        for element in lexicon:
+            parse = nltk.tree.Tree.fromstring(element[1])
+            sems = nltk.tree.Tree.fromstring(element[2])
+            for production in parse.productions():
+                if self.production_is_lexical(production):
+                    for sem_production in sems.productions():
+                        sem_items = self.production_to_semantics(sem_production)
+                        for sem in sem_items:
+                            rule = self.production_to_rule(production, sem)
+                            if not rule.lhs == '$Superlative':
+                                if rule.lhs not in rules_set:
+                                    rules_set[rule.lhs] = {}
+                                if rule not in rules_set[rule.lhs]:
+                                    rules_set[rule.lhs][rule] = 0
+                                rules_set[rule.lhs][rule] += 1
+        for lhs, rule_count_dict in rules_set.items():
+            most_frequent = list(dict(sorted(rule_count_dict.items(), key=lambda x: x[1], reverse=True)).keys())[:5]
+            for rule in most_frequent:
+                self.add_rule(rule)
 
     def production_is_lexical(self, production):
         """

@@ -25,7 +25,7 @@ class GeoQueryDomain():
 
     def rules(self, with_manual=True):
         """
-        The ability to toggle whether or not we include the manual lexical rules. 
+        The ability to toggle whether or not we include the manual lexical rules.
         :param with_manual: Boolean to toggle the sets of rules.
         """
         if with_manual:
@@ -98,7 +98,7 @@ class GeoQueryDomain():
             Rule('$Superlative', 'smallest', ('.argmin', 'area')),
 
             Rule('$Superlative', '$MostLeast $RevRelation', lambda sems: (sems[0], sems[1])),
-            Rule('$MostLeast', 'most', '.argmax'), 
+            Rule('$MostLeast', 'most', '.argmax'),
             Rule('$MostLeast', 'least', '.argmin')
         ]
 
@@ -282,7 +282,7 @@ class GeoQueryDomain():
             Rule('$Superlative', 'highest', ('.argmax', 'height')),
 
             Rule('$Superlative', '$MostLeast $RevRelation', lambda sems: (sems[0], sems[1])),
-            Rule('$MostLeast', 'most', '.argmax'), 
+            Rule('$MostLeast', 'most', '.argmax'),
             Rule('$MostLeast', 'least', '.argmin'),
             Rule('$MostLeast', 'lowest', '.argmin'),
             Rule('$MostLeast', 'greatest', '.argmax'),
@@ -371,10 +371,14 @@ class GeobaseAnnotator:
         Hint: Note that the GraphKB datastructure allows for reverse queries by calling binaries_rev['name'][query]
         which will return a list of names for the given query.
         """
-        raise NotImplementedError("GeobaseAnnotator.annotate")
+        tuples = []
+        for token in tokens:
+            for entry in self.geobase.binaries_rev['name'][token]:
+                tuples.append(('$Entity', entry))
+        return tuples
 
 if __name__ == '__main__':
     domain = GeoQueryDomain()
-    # Note that you can keep running this script to evaluate your rules. 
+    # Note that you can keep running this script to evaluate your rules.
     # Hint: First complete the annotator and the grammar class before running these tests for part 2.
     sample_wins_and_losses(domain=domain)

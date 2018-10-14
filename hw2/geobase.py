@@ -67,7 +67,7 @@ class GeobaseReader:
 
     def __init__(self):
         self.tuples = set()
-        self.prolog_file = '/tmp/geobase.pl'
+        self.prolog_file = 'geobase.pl'
         self.ensure_prolog_file()
         lines = self.read_lines()
         self.parse(lines)
