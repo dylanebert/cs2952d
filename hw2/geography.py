@@ -373,8 +373,9 @@ class GeobaseAnnotator:
         """
         tuples = []
         for token in tokens:
-            for entry in self.geobase.binaries_rev['name'][token]:
-                tuples.append(('$Entity', entry))
+            for key in self.geobase.binaries_rev.keys():
+                for entry in self.geobase.binaries_rev[key][token]:
+                    tuples.append(('$Entity', entry))
         return tuples
 
 if __name__ == '__main__':

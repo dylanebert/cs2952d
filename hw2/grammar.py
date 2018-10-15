@@ -207,16 +207,31 @@ class Grammar:
         :return: A chart with parses of all spans. Note that the parses are represented by the Parse class.
         """
         print(input_sent)
-        tokens = input_sent.split()
+        tokens = input_sent.split()[:-1]
         chart = defaultdict(list)
-        chart = self.apply_lexical_rules(chart, tokens, 0, len(tokens))
-        chart = self.apply_binary_rules(chart, 0, len(tokens))
-        for i, j in product(range(0, len(tokens)), repeat=2):
-            chart = self.apply_unary_rules(chart, i, j)
-        print()
-        self.print_chart(chart)
+        n = len(tokens)
+
+        #Apply lexical rules, going over sequential pairs
+        for i in range(n):
+            self.apply_annotators(chart, tokens, i, i+1)
+
+        #Lexical rules on sequences of two
+        for i, j in product(range(n), repeat=2):
+            self.apply_lexical_rules(chart, tokens, i, j)
+
+        for i, j in product(range(n), repeat=2):
+            self.apply_unary_rules(chart, i, j)
+
+        #Go over all spans, incrementing span length
+        for span_length in range(2, n + 1):
+            for span_start in range(0, n - span_length + 1):
+                i, j = span_start, span_start + span_length
+                self.apply_binary_rules(chart, i, j)
+                self.apply_unary_rules(chart, i, j)
+
         parses = chart[(0, len(tokens))]
-        print(parses)
+        self.print_chart(chart)
+        print(len(parses))
         if self.start_symbol:
             parses = [parse for parse in parses if parse.rule.lhs == self.start_symbol]
         return parses
@@ -229,11 +244,8 @@ class Grammar:
         :param i: start of span
         :param j: end of span
         """
-        for s in range(i, j):
-            for rule in self.lexical_rules[(tokens[s],)]:
-                chart[(s,s+1)].append(Parse(rule, [tokens[s]]))
-                chart = self.apply_annotators(chart, tokens, s, s+1)
-        return chart
+        for rule in self.lexical_rules[tuple(tokens[i:j])]:
+            chart[(i,j)].append(Parse(rule, tokens[i:j]))
 
     def apply_binary_rules(self, chart, i, j):
         """
@@ -242,17 +254,14 @@ class Grammar:
         :param i: start of span
         :param j: end of span
         """
-        n = j - i + 1
-        for span_length in range(2, n):
-            for span_start in range(i, n - span_length + i):
-                for span_partition in range(1, span_length):
-                    a = (span_start, span_start + span_partition)
-                    b = (span_start + span_partition, span_start + span_length)
-                    for r in chart[a]:
-                        for s in chart[b]:
-                            for rule in self.binary_rules[(r.rule.lhs, s.rule.lhs)]:
-                                chart[(span_start, span_start + span_length)].append(Parse(rule, [r, s]))
-        return chart
+        span_length = j - i
+        for span_partition in range(1, span_length):
+            a = (i, i + span_partition)
+            b = (i + span_partition, i + span_length)
+            for r in chart[a]:
+                for s in chart[b]:
+                    for rule in self.binary_rules[(r.rule.lhs, s.rule.lhs)]:
+                        chart[(i, j)].append(Parse(rule, [r, s]))
 
     ############## Part 2 ##############
 
@@ -266,10 +275,13 @@ class Grammar:
         Hint: 1) iterate over all parses in a cell, (i,j)
               2) for each unary rule in each parse, check capacity and then append rule
         """
-        for cell in chart[(i, j)]:
-            for rule in self.unary_rules[(cell.rule.lhs,)]:
-                chart[(i, j)].append(Parse(rule, [cell]))
-        return chart
+        idx = 0
+        while idx < len(chart[(i, j)]):
+            parse = chart[(i, j)][idx]
+            idx += 1
+            for rule in self.unary_rules[(parse.rule.lhs,)]:
+                if self.check_capacity(chart, i, j):
+                    chart[(i, j)].append(Parse(rule, [parse]))
 
     def apply_annotators(self, chart, tokens, i, j):
         """
@@ -283,11 +295,11 @@ class Grammar:
               2) for every annotator, for every token annotation
               3) check capacity and add Rule
         """
-        '''for annotator in self.annotators:
-            for s in range(i, j):
-                for annotation in annotator.annotate([tokens[s]]):
-                    chart[(s,s+1)].append(annotation)'''
-        return chart
+        for annotator in self.annotators:
+            for annotation in annotator.annotate(tokens[i:j]):
+                if self.check_capacity(chart, i, j):
+                    rule = Rule(annotation[0], annotation[1])
+                    chart[(i, j)].append(Parse(rule, tokens[i:j]))
 
     def add_n_ary_rule(self, rule):
         """
@@ -388,7 +400,6 @@ class Grammar:
         that will induce the lexical rules for our grammar. nltk.tree.Tree.productions() will be very useful
         in parsing both the semantic parse as well as the semantic attachements.
         :param lexicon: List of tuples
-
 
         Hint: 1) For every element in lexicon, create a for the semantic parse and the semantics with Tree.fromstring()
               2) For every production from the semantic parse tree you get from Tree.productions(), check if it is lexical

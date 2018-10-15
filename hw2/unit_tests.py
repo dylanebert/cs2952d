@@ -84,8 +84,8 @@ def simple_grammar_tests():
         input_sent = "one one"
         tokens = input_sent.split()
         chart = defaultdict(list)
-        chart = grammar.apply_lexical_rules(chart, tokens, 0, 1)
-        chart = grammar.apply_lexical_rules(chart, tokens, 1, 2)
+        grammar.apply_lexical_rules(chart, tokens, 0, 1)
+        grammar.apply_lexical_rules(chart, tokens, 1, 2)
         chart_entry_0_1 = "($Number, one)"
         chart_entry_1_2 = "($Number, one)"
         assert(str(chart[(0,1)][0]) == chart_entry_0_1)
@@ -95,9 +95,9 @@ def simple_grammar_tests():
         input_sent = "one one"
         tokens = input_sent.split()
         chart = defaultdict(list)
-        chart = grammar.apply_lexical_rules(chart, tokens, 0, 1)
-        chart = grammar.apply_lexical_rules(chart, tokens, 1, 2)
-        chart = grammar.apply_binary_rules(chart, 0, 2)
+        grammar.apply_lexical_rules(chart, tokens, 0, 1)
+        grammar.apply_lexical_rules(chart, tokens, 1, 2)
+        grammar.apply_binary_rules(chart, 0, 2)
         chart_entry_0_2 = "($Double, ($Number, one) ($Number, one))"
         assert(str(chart[(0,2)][0]) == chart_entry_0_2)
 
