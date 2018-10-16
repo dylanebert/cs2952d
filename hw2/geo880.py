@@ -5,14 +5,14 @@ from example import Example
 This class holds the geo880 dataset
 """
 
-geo880_train_examples = [
+'''geo880_train_examples = [
     Example(input='what is the population of rhode island ?',
             denotation=(947200,)),
     Example(input='what is the population of illinois ?',
             denotation=(11400000,)),
-]
+]'''
 
-'''geo880_train_examples = [
+geo880_train_examples = [
     Example(input='what is the highest point in florida ?',
             denotation=('/place/walton_county',)),
     Example(input='what are the high points of states surrounding mississippi ?',
@@ -1724,7 +1724,7 @@ geo880_train_examples = [
             denotation=('/state/texas',)),
     Example(input='how many people live in montana ?',
             denotation=(786700,)),
-]'''
+]
 
 geo880_test_examples = [
     Example(input='which state is the smallest ?',
