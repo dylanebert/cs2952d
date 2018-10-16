@@ -38,13 +38,16 @@ class Rule:
         """
         Returns true if this is a lexical rule. Hint: use is_cat
         """
-        return not self.is_cat(self.rhs[0])
+        for item in self.rhs:
+            if self.is_cat(item):
+                return False
+        return True
 
     def is_binary(self):
         """
         Returns true if the rule is binary
         """
-        return len(self.rhs) == 2
+        return len(self.rhs) == 2 and self.is_cat(self.rhs[0]) and self.is_cat(self.rhs[1])
 
     def apply_semantics(self, sems):
         # Note that this function would not be needed if we required that semantics
@@ -124,10 +127,13 @@ class Parse:
         This is where we will apply the semantics that we defined for our rules earlier.
         Hint: Remember when you defined the rules, there was a "sem" attribute.
         """
-        if self.rule.is_lexical():
-            return self.rule.apply_semantics(self.rule.sem)
-        else:
-            return self.rule.apply_semantics([child.compute_semantics() for child in self.children])
+        children = []
+        for child in self.children:
+            if isinstance(child, str):
+                children.append(child)
+            else:
+                children.append(child.compute_semantics())
+        return self.rule.apply_semantics(children)
 
 #========================================= Grammar ==================================================
 
@@ -206,20 +212,20 @@ class Grammar:
         :param input_sent: This is the input sentence
         :return: A chart with parses of all spans. Note that the parses are represented by the Parse class.
         """
-        print(input_sent)
-        tokens = input_sent.split()[:-1]
+        tokens = input_sent.split()
         chart = defaultdict(list)
         n = len(tokens)
 
-        #Apply lexical rules, going over sequential pairs
-        for i in range(n):
-            self.apply_annotators(chart, tokens, i, i+1)
+        #Apply annotators
+        for i, j in product(range(n+1), repeat=2):
+            self.apply_annotators(chart, tokens, i, j)
 
-        #Lexical rules on sequences of two
-        for i, j in product(range(n), repeat=2):
+        #Lexical rules
+        for i, j in product(range(n+1), repeat=2):
             self.apply_lexical_rules(chart, tokens, i, j)
 
-        for i, j in product(range(n), repeat=2):
+
+        for i, j in product(range(n+1), repeat=2):
             self.apply_unary_rules(chart, i, j)
 
         #Go over all spans, incrementing span length
@@ -230,8 +236,6 @@ class Grammar:
                 self.apply_unary_rules(chart, i, j)
 
         parses = chart[(0, len(tokens))]
-        self.print_chart(chart)
-        print(len(parses))
         if self.start_symbol:
             parses = [parse for parse in parses if parse.rule.lhs == self.start_symbol]
         return parses
@@ -245,7 +249,9 @@ class Grammar:
         :param j: end of span
         """
         for rule in self.lexical_rules[tuple(tokens[i:j])]:
-            chart[(i,j)].append(Parse(rule, tokens[i:j]))
+            parse = Parse(rule, tokens[i:j])
+            if parse not in chart[(i,j)]:
+                chart[(i,j)].append(parse)
 
     def apply_binary_rules(self, chart, i, j):
         """
@@ -261,7 +267,10 @@ class Grammar:
             for r in chart[a]:
                 for s in chart[b]:
                     for rule in self.binary_rules[(r.rule.lhs, s.rule.lhs)]:
-                        chart[(i, j)].append(Parse(rule, [r, s]))
+                        if self.check_capacity(chart, i, j):
+                            parse = Parse(rule, [r, s])
+                            if parse not in chart[(i, j)]:
+                                chart[(i, j)].append(parse)
 
     ############## Part 2 ##############
 
@@ -281,7 +290,9 @@ class Grammar:
             idx += 1
             for rule in self.unary_rules[(parse.rule.lhs,)]:
                 if self.check_capacity(chart, i, j):
-                    chart[(i, j)].append(Parse(rule, [parse]))
+                    unary_parse = Parse(rule, [parse])
+                    if unary_parse not in chart[(i, j)]:
+                        chart[(i, j)].append(unary_parse)
 
     def apply_annotators(self, chart, tokens, i, j):
         """
@@ -419,12 +430,12 @@ class Grammar:
                         for sem in sem_items:
                             rule = self.production_to_rule(production, sem)
                             if not rule.lhs == '$Superlative':
-                                if rule.lhs not in rules_set:
-                                    rules_set[rule.lhs] = {}
-                                if rule not in rules_set[rule.lhs]:
-                                    rules_set[rule.lhs][rule] = 0
-                                rules_set[rule.lhs][rule] += 1
-        for lhs, rule_count_dict in rules_set.items():
+                                if rule.rhs not in rules_set:
+                                    rules_set[rule.rhs] = {}
+                                if rule not in rules_set[rule.rhs]:
+                                    rules_set[rule.rhs][rule] = 0
+                                rules_set[rule.rhs][rule] += 1
+        for rhs, rule_count_dict in rules_set.items():
             most_frequent = list(dict(sorted(rule_count_dict.items(), key=lambda x: x[1], reverse=True)).keys())[:5]
             for rule in most_frequent:
                 self.add_rule(rule)

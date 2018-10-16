@@ -372,10 +372,10 @@ class GeobaseAnnotator:
         which will return a list of names for the given query.
         """
         tuples = []
-        for token in tokens:
-            for key in self.geobase.binaries_rev.keys():
-                for entry in self.geobase.binaries_rev[key][token]:
-                    tuples.append(('$Entity', entry))
+        phrase = ' '.join(tokens)
+        for key in self.geobase.binaries_rev.keys():
+            for entry in self.geobase.binaries_rev[key][phrase]:
+                tuples.append(('$Entity', entry))
         return tuples
 
 if __name__ == '__main__':

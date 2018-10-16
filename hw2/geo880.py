@@ -6,8 +6,10 @@ This class holds the geo880 dataset
 """
 
 geo880_train_examples = [
-    Example(input='how many states have a city called rochester ?',
-            denotation=(2,)),
+    Example(input='what is the population of rhode island ?',
+            denotation=(947200,)),
+    Example(input='what is the population of illinois ?',
+            denotation=(11400000,)),
 ]
 
 '''geo880_train_examples = [

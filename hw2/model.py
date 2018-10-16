@@ -29,5 +29,9 @@ class Model:
         parses = self.grammar.parse_input(input)
         for parse in parses:
             # Evaluate the parse if given an executor
-            parse.denotation = self.executor(parse.semantics)
+            #parse.denotation = self.executor(parse.semantics)
+            try:
+                parse.denotation = self.executor(parse.semantics)
+            except Exception as e:
+                pass
         return parses

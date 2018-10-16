@@ -1,0 +1,38 @@
+1. The following lexical entries were added for "highest":
+
+Manually:
+Rule('$Superlative', 'highest', ('.argmax', 'height'))
+Rule('$MostLeast', 'highest', '.argmax')
+
+Via grammar induction:
+Rule('$MostLeast', 'highest', '.argmax')
+Rule('$MostLeast', 'highest', '.and')
+Rule('$MostLeast', 'highest', 'state')
+Rule('$MostLeast', 'highest', 'population')
+Rule('$MostLeast', 'highest', 'borders')
+
+Then, for "florida", all via grammar induction:
+Rule('$Entity', 'florida', 'borders')
+Rule('$Entity', 'florida', '/state/florida')
+Rule('$Entity', 'florida', '.and')
+Rule('$Entity', 'florida', 'state')
+Rule('$Entity', 'florida', 'highest_point')
+
+Grammar induction succeeded in capturing would I would say are the "right" rules, namely:
+Rule('$MostLeast', 'highest', '.argmax')
+and
+Rule('$Entity', 'florida', '/state/florida')
+Rule('$Entity', 'florida', 'state')
+
+The other rules induced had semantics that didn't make sense, but could be expected with the induction method.
+
+To improve these results, we'd want to filter out inappropriate rules. One of the most straightforward ways to have stricter
+thresholds for adding rules, rather than just adding the top 5 most frequent rules. For example, only rules induced by a certain proportion
+of examples should be added.
+
+2. One parse that failed was "what is the population of rhode island"? This is despite that it got correct results for other state
+population queries, like texas, illinois, etc. What went wrong is that it reached the maximum number of parses (1000 parses), before
+being able to get the correct parse. The reason for this is that the parser tried to parse all possibilities that include "rhode" and
+"island" as separate entities, as well as (correctly) as a single entity. One way to fix this is to increase the parse cap. Another fix
+could be to address the unneccessary lexical rules induced as described in the previous section, which certainly cause an explosion in
+possible parses.
